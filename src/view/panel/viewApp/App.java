@@ -1,11 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package view.panel.viewApp;
-        
+
+import entity.User;
+import utils.UserSession;
 import view.panel.BaoCao;
 import view.panel.DangKyTaiKhoan;
+import view.panel.DanhSachGioLam;
 
 import view.panel.DatSanView;
 import view.panel.DoiMatKhau;
@@ -14,7 +13,7 @@ import view.panel.ThanhToanHoaDon;
 import view.panel.HoaDonChiTiet;
 import view.panel.QuanLySan;
 import view.panel.ThongKe;
-
+import view.panel.ThongKeTongTien;
 
 /**
  *
@@ -26,32 +25,42 @@ public class App extends javax.swing.JFrame {
      * Creates new form App
      */
     public App() {
+
         initComponents();
-        QuanLySan quanLySan = new QuanLySan();
-        tab.add("Quản Lý Sân", quanLySan);
-        ThongKe thongKe = new ThongKe();
-        tab.add("Thống Kê",thongKe);
-//        HoaDonChiTiet thanhToanHoaDon = new HoaDonChiTiet();
-//        tab.add("Hóa Đơn", thanhToanHoaDon);
-//        ThanhToanHoaDon hoaDonChiTiet = new ThanhToanHoaDon();
-//        tab.add("Hóa Đơn Chi Tiết", hoaDonChiTiet);
-        DangKyTaiKhoan dangKyTaiKhoan = new DangKyTaiKhoan();
-        tab.add("Đăng Ký Tài Khoản", dangKyTaiKhoan);
-//        DoiMatKhau doiMatKhau = new DoiMatKhau();
-//        tab.add("Đổi Mật Khẩu", doiMatKhau);
+        User user = UserSession.getCurrentUser();
 
-        DatSanView datSan = new DatSanView();
-        tab.add("Dat San", datSan);
-        ThanhToanHoaDon thanhToanHoaDon = new ThanhToanHoaDon();
-        tab.add("Hóa Đơn ", thanhToanHoaDon);
-        HoaDonChiTiet hoaDonChiTiet = new HoaDonChiTiet();
-        tab.add("Hóa Đơn Chi Tiết", hoaDonChiTiet);
+        if (user.getRole().equalsIgnoreCase("admin")) {
+            QuanLySan quanLySan = new QuanLySan();
+            tab.add("Quản Lý Sân", quanLySan);
+            ThongKe thongKe = new ThongKe();
+            tab.add("Thống Kê", thongKe);
+            HoaDonChiTiet thanhToanHoaDon = new HoaDonChiTiet();
+            tab.add("Hóa Đơn", thanhToanHoaDon);
+            ThanhToanHoaDon hoaDonChiTiet = new ThanhToanHoaDon();
+            tab.add("Hóa Đơn Chi Tiết", hoaDonChiTiet);
+            DangKyTaiKhoan dangKyTaiKhoan = new DangKyTaiKhoan();
+            tab.add("Đăng Ký Tài Khoản", dangKyTaiKhoan);
+            DoiMatKhau doiMatKhau = new DoiMatKhau();
+            tab.add("Đổi Mật Khẩu", doiMatKhau);
+            DanhSachGioLam danhSachGioLam = new DanhSachGioLam();
+            tab.add("Giờ Làm", danhSachGioLam);
 
-        BaoCao baoCao = new BaoCao();
-        tab.add("Báo Cáo", baoCao);
-        DoiMatKhau doiMatKhau = new DoiMatKhau();
-        tab.add("Đổi Mật Khẩu", doiMatKhau); 
+        } else {
+            DatSanView datSan = new DatSanView();
+            tab.add("Dat San", datSan);
+            ThanhToanHoaDon thanhToanHoaDon = new ThanhToanHoaDon();
+            tab.add("Hóa Đơn ", thanhToanHoaDon);
+            HoaDonChiTiet hoaDonChiTiet = new HoaDonChiTiet();
+            tab.add("Hóa Đơn Chi Tiết", hoaDonChiTiet);
+
+            BaoCao baoCao = new BaoCao();
+            tab.add("Báo Cáo", baoCao);
+            DoiMatKhau doiMatKhau = new DoiMatKhau();
+            tab.add("Đổi Mật Khẩu", doiMatKhau);
+        }
+
         this.setLocationRelativeTo(this);
+
     }
 
     /**

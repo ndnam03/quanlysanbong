@@ -7,6 +7,7 @@ package view.panel;
 import entity.DatSan;
 import entity.KhachHang;
 import entity.SanBong;
+import entity.User;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
@@ -15,7 +16,7 @@ import service.DatSanService;
 import service.KhachHangService;
 
 import service.SanBongService;
-
+import utils.UserSession;
 
 public class DatSanView extends javax.swing.JPanel {
 
@@ -29,6 +30,8 @@ public class DatSanView extends javax.swing.JPanel {
     public DatSanView() {
         initComponents();
         loadDataLoaiSan();
+        jTextField2.setText(String.valueOf(UserSession.getCurrentUser().getId()));
+        jTextField4.setText(String.valueOf(UserSession.getCurrentUser().getName()));
 
     }
 
@@ -68,20 +71,50 @@ public class DatSanView extends javax.swing.JPanel {
         if (jDateChooser1.getDate() == null) {
             return "Ngày Đặt Không Được Để Trống!!";
         }
-        if (jTextField9.getText().isEmpty()) {
+        String fullName = jTextField9.getText().trim();
+        if (fullName.isEmpty()) {
             return "Họ Tên Khách Hàng Không Được Để Trống!!!";
+        }
+
+
+        String regex2 = "^[a-zA-Z\\s]+$";
+
+        if (!fullName.matches(regex2)) {
+            return "Họ tên không được chứa kí tự đặc biệt!";
         }
         if (jTextField10.getText().isEmpty()) {
             return "Địa Chỉ Khách Hàng Không Được Để Trống!!!";
         }
-        if (jTextField11.getText().isEmpty()) {
+        String phoneNumber = jTextField12.getText().trim();
+        if (phoneNumber.isEmpty()) {
             return "Số Điện Thoại Khách Hàng Không Được Để Trống!!!";
+        }
+
+        String regex = "^\\+?[0-9]{9,15}$";
+
+        if (!phoneNumber.matches(regex)) {
+            return "Số điện thoại không hợp lệ!";
         }
         try {
             Integer.parseInt(jTextField1.getText());
         } catch (Exception e) {
             return "Số Giờ Không Đúng Định Dạng!!!";
         }
+
+        try {
+            double tien = Double.parseDouble(jTextField11.getText());
+            if (jTextField11.getText().isEmpty()) {
+                return "Số tiền không được để trông!!!";
+            }
+            double gia = Double.parseDouble(jTextField7.getText());
+            int soGio = Integer.parseInt(jTextField1.getText());
+            if (tien > gia * soGio) {
+                return "Số tiền thanh toán nhiều hơn số tiền sân vui lòng nhập lại!!!";
+            }
+        } catch (Exception e) {
+            return "Tiền không đúng định dạng!!!";
+        }
+
         return "";
     }
 
@@ -172,6 +205,7 @@ public class DatSanView extends javax.swing.JPanel {
         jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel4.setText("ID nhân viên:");
 
+        jTextField2.setEditable(false);
         jTextField2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -180,6 +214,7 @@ public class DatSanView extends javax.swing.JPanel {
         jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel7.setText("Nhân viên phụ trách:");
 
+        jTextField4.setEditable(false);
         jTextField4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -477,6 +512,7 @@ public class DatSanView extends javax.swing.JPanel {
 
         if (!validateFrom().isEmpty()) {
             JOptionPane.showMessageDialog(this, validateFrom());
+            return;
         }
         KhachHang khachHang = KhachHang.builder()
                 .name(jTextField9.getText())
@@ -484,7 +520,7 @@ public class DatSanView extends javax.swing.JPanel {
                 .phone(jTextField12.getText())
                 .build();
         khachHangService.add(khachHang);
-        int idKH  = khachHangService.getOneByName(khachHang.getPhone()).getId();
+        int idKH = khachHangService.getOneByName(khachHang.getPhone()).getId();
         datSanService.add(readObject(idKH));
         JOptionPane.showMessageDialog(this, "Đặt Thành Công");
 

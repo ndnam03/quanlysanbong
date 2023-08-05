@@ -6,6 +6,7 @@ package service;
 
 import dao.HoaDonDAO;
 import entity.HoaDon;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,5 +41,14 @@ public class HoaDonService implements MethodService<HoaDon> {
         return new HoaDonDAO().remove(id);
         
     }
-    
+
+    public List<HoaDon> getAllHoaDonByNgay() {
+        return new HoaDonDAO().getAllHoaDonByNgay();
+    }
+    public List<Double> thongKeTongTienThang(int month){
+        return new HoaDonDAO().thongKeSoTienByThang(month);
+    }
+    public List<HoaDon> getHoaDonByNgay(String date){
+        return new HoaDonDAO().getHoaDonByNgay(date);
+    }
 }

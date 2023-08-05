@@ -38,6 +38,7 @@ public class KhachHangDAO extends DBContext implements MethodDAO<KhachHang> {
                         .build();
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return khachHang;
     }

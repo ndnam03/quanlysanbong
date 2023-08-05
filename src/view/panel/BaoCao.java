@@ -4,6 +4,30 @@
  */
 package view.panel;
 
+import entity.ChamCong;
+import entity.HoaDon;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import service.ChamCongService;
+import service.DatSanService;
+import service.HoaDonService;
+import utils.UserSession;
+
 /**
  *
  * @author ACER
@@ -13,8 +37,48 @@ public class BaoCao extends javax.swing.JPanel {
     /**
      * Creates new form BaoCao
      */
+    DefaultTableModel tm;
+    private HoaDonService hoaDonService = new HoaDonService();
+    private DatSanService datSanService = new DatSanService();
+    ChamCongService chamCongService = new ChamCongService();
+    double tongTien = 0;
+
     public BaoCao() {
         initComponents();
+        String[] s = {"ID", "ID KHÁCH HÀNG", "SỐ GIỜ", "TỔNG TIỀN", "NGÀY TẠO"};
+        tm = new DefaultTableModel(s, 0);
+        jTable4.setModel(tm);
+        getAllHoaDonByNgay();
+        loadBaoCao();
+        jTextField10.setText(UserSession.getCurrentUser().getName());
+    }
+
+    private void loadBaoCao() {
+        if (jTextField9.getText().isEmpty()) {
+            double tongTiens = hoaDonService.getAllHoaDonByNgay().stream()
+                    .mapToDouble(HoaDon::getTongTien)
+                    .sum();
+
+            if (jTextField9.getText().isEmpty()) {
+                jTextField8.setText(hoaDonService.getAllHoaDonByNgay().size() + "");
+
+                jTextField9.setText(String.valueOf(tongTien) + "VND");
+            } else {
+                jTextField9.setText(String.valueOf(tongTien) + "VND");
+            }
+        }
+
+    }
+
+    private void getAllHoaDonByNgay() {
+        tm.setRowCount(0);
+        hoaDonService.getAllHoaDonByNgay().forEach(o -> {
+            int soGio = datSanService.getOne(o.getIdKH()).getSoGio();
+            tongTien += o.getTongTien();
+            tm.addRow(new Object[]{
+                o.getId(), o.getIdKH(), soGio, o.getTongTien(), o.getNgayTao()
+            });
+        });
     }
 
     /**
@@ -55,9 +119,14 @@ public class BaoCao extends javax.swing.JPanel {
 
             },
             new String [] {
-                "ID", "ID Khách Hàng", "Tổng Tiền", "Ngày Tạo"
+
             }
         ));
+        jTable4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable4MouseClicked(evt);
+            }
+        });
         jScrollPane4.setViewportView(jTable4);
 
         jPanel7.setBackground(new java.awt.Color(153, 102, 0));
@@ -80,11 +149,27 @@ public class BaoCao extends javax.swing.JPanel {
             }
         });
 
+        jTextField8.setEditable(false);
+
+        jTextField9.setEditable(false);
+
+        jTextField10.setEditable(false);
+
         jButton3.setText("Gửi báo cáo");
         jButton3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("Quay Lại");
         jButton4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -174,52 +259,89 @@ public class BaoCao extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField7ActionPerformed
 
+    private void jTable4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable4MouseClicked
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_jTable4MouseClicked
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        if (jTextField7.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui longf nhập nội dung báo cáo!!!");
+            return;
+        }
+        String to = "namndph37181@fpt.edu.vn"; // Địa chỉ email của người nhận
+        String from = "nguyenchien100301@gmail.com"; // Địa chỉ email của người gửi
+        String host = "smtp.gmail.com"; // SMTP server của gmail
+        String username = "nguyenchien100301@gmail.com"; // Tên đăng nhập của người gửi
+        String password = "ojxxpdkrzmtdyocn"; // Mật khẩu của người gửi
+
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+        try {
+
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(from));
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            message.setSubject("Báo Cáo Doanh Thu Ngày " + new Date());
+
+            MimeMultipart multipart = new MimeMultipart("related");
+
+            MimeBodyPart htmlPart = new MimeBodyPart();
+            String htmlContent = "<html><body>"
+                    + "<h1>BÁO CÁO DOANH THU</h1>"
+                    + "<p>Tổng số lượng đơn: " + jTextField8.getText() + "</p>"
+                    + "<p>Tổng số lượng tiền: " + jTextField9.getText() + "</p>"
+                    + "<p>Chú thích: " + MimeUtility.encodeText(jTextField7.getText(), "UTF-8", "B") + "</p>"
+                    + "<p>Tên nhân viên: " + jTextField10.getText() + "</p>"
+                    + "</body></html>";
+            htmlPart.setContent(htmlContent, "text/html; charset=utf-8");
+
+            multipart.addBodyPart(htmlPart);
+
+            message.setContent(multipart);
+
+            Transport.send(message);
+            System.out.println("Email sent successfully.");
+            JOptionPane.showMessageDialog(this, "Báo Cáo Thành Công");
+
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(BaoCao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        chamCongService.update(null, UserSession.getCurrentUser().getId());
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        loadBaoCao();
+        getAllHoaDonByNgay();
+    }//GEN-LAST:event_jButton4ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
     private javax.swing.JTextField jTextField9;

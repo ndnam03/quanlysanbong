@@ -26,7 +26,7 @@ public class QuanLySan extends javax.swing.JPanel {
 
     public QuanLySan() {
         initComponents();
-        String[] s = {"ID", "Loại Sân", "Số Lượng Người", "Tình trạng"};
+        String[] s = {"ID", "Loại Sân", "Số Lượng Người","Giá", "Tình trạng"};
         tm = new DefaultTableModel(s, 0);
         jTable4.setModel(tm);
         loadData();
@@ -38,7 +38,7 @@ public class QuanLySan extends javax.swing.JPanel {
         List<SanBong> list = sanBongService.getAll();
         list.forEach(o -> {
             tm.addRow(new Object[]{
-                o.getId(), o.getLoaiSan(), o.getSoLuongNguoi(), o.isTrangThai() ? "Hoạt Động" : "Bảo Trì"
+                o.getId(), o.getLoaiSan(), o.getSoLuongNguoi(),o.getGia(), o.isTrangThai() ? "Hoạt Động" : "Bảo Trì"
             });
         });
     }
@@ -257,6 +257,13 @@ public class QuanLySan extends javax.swing.JPanel {
 
         String value = jButton9.getText();
         if (value.equalsIgnoreCase("Thêm")) {
+            
+            for(SanBong o  :sanBongService.getAll()){
+                if(jTextField10.getText().equalsIgnoreCase(o.getLoaiSan())){
+                    JOptionPane.showMessageDialog(this, "Looại sân đã tồn tại!!!");
+                    return;
+                }
+            }
             boolean f = sanBongService.add(readObject());
 
             if (f) {
@@ -264,6 +271,7 @@ public class QuanLySan extends javax.swing.JPanel {
                 loadData();
             }
         } else {
+            
             int id = Integer.parseInt(String.valueOf(tm.getValueAt(row, 0)));
             boolean f = sanBongService.update(readObject(), id);
             loadData();
@@ -301,6 +309,7 @@ public class QuanLySan extends javax.swing.JPanel {
         jTextField10.setText("");
         jTextField11.setText("");
         jTextField12.setText("");
+        jRadioButton7.setSelected(true);
 
 
     }//GEN-LAST:event_jButton8ActionPerformed

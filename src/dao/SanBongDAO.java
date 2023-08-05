@@ -42,6 +42,7 @@ public class SanBongDAO extends DBContext implements MethodDAO<SanBong> {
     @Override
     public SanBong getOne(int id) {
         SanBong sanBong = null;
+        System.out.println(id);
         try {
             String sql = "select * from san where id = ?";
             PreparedStatement st  = connection.prepareStatement(sql);

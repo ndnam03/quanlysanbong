@@ -12,8 +12,10 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import entity.DatSan;
+import entity.HoaDon;
 import entity.KhachHang;
 import entity.SanBong;
+import entity.User;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,8 +28,10 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 import service.DatSanService;
+import service.HoaDonService;
 import service.KhachHangService;
 import service.SanBongService;
+import utils.UserSession;
 
 public class ThanhToanHoaDon extends javax.swing.JPanel {
 
@@ -38,6 +42,7 @@ public class ThanhToanHoaDon extends javax.swing.JPanel {
     private DatSanService datSanService = new DatSanService();
     private KhachHangService khachHangService = new KhachHangService();
     private SanBongService sanBongService = new SanBongService();
+    private HoaDonService hoaDonService = new HoaDonService();
 
     public ThanhToanHoaDon() {
         initComponents();
@@ -45,6 +50,9 @@ public class ThanhToanHoaDon extends javax.swing.JPanel {
         tm = new DefaultTableModel(s, 0);
         jTable1.setModel(tm);
         loadKhachHang(datSanService.getAll());
+        if(UserSession.getCurrentUser().getRole().equalsIgnoreCase("admin")){
+            jButton3.setEnabled(false);
+        }
     }
 
     private void loadKhachHang(List<DatSan> list) {
@@ -325,12 +333,18 @@ public class ThanhToanHoaDon extends javax.swing.JPanel {
         int row = jTable1.getSelectedRow();
         DatSan datSan = datSanService.getAll().get(row);
         KhachHang khachHang = khachHangService.getOne(datSan.getIdKhachHang());
-        SanBong sanBong = sanBongService.getOne(datSan.getId());
+        SanBong sanBong = sanBongService.getOne(datSan.getSanBongId());
         System.out.println(sanBong);
+          double tongTien = 0.0;
+        try {
+             tongTien = Double.parseDouble(String.valueOf(sanBong.getGia())) * 
+                datSan.getSoGio();
+        } catch (Exception e) {
+        }
         jTextField1.setText(khachHang.getName());
         jTextField10.setText(khachHang.getPhone());
         jTextField13.setText(sanBong.getLoaiSan());
-        jTextField11.setText(String.valueOf(sanBong.getGia()));
+        jTextField11.setText(String.valueOf(tongTien));
         jTextField12.setText(String.valueOf(datSan.getSoGio()));
         jTextField15.setText(String.valueOf(datSan.getSotienthanhtoan()));
         jTextField16.setText(String.valueOf(tm.getValueAt(row, 6)));
@@ -339,7 +353,12 @@ public class ThanhToanHoaDon extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        String regex = "^\\+?[0-9]{9,15}$";
         String value = jTextField9.getText();
+        if(!value.matches(regex)){
+            JOptionPane.showMessageDialog(this, "Số điện thoại không đúng định dạng!!!");
+            return;
+        }
         List<DatSan> list = datSanService.getDatSanSanByPhone(value);
         System.out.println(list.size());
         if (list.size() > 0)
@@ -364,14 +383,20 @@ public class ThanhToanHoaDon extends javax.swing.JPanel {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        int row = jTable1.getSelectedRow();
+        if(row < 0){
+            JOptionPane.showMessageDialog(this, "Bạn phải chọn đối tượng để thanh toán!!!");
+            return;
+        }
+        
         String customerName = jTextField1.getText();
-    String customerPhone = jTextField10.getText();
-    String soGio = jTextField12.getText();
-    String loaiSan = jTextField13.getText();
-    String diaChi = jTextField14.getText();
-    String tongTien = jTextField11.getText();
+        String customerPhone = jTextField10.getText();
+        String soGio = jTextField12.getText();
+        String loaiSan = jTextField13.getText();
+        String diaChi = jTextField14.getText();
+        String tongTien = jTextField11.getText();
 
-     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         Date ngayThanhToan = new Date();
         Random random = new Random();
         int randomNumber = random.nextInt(100000);
@@ -443,8 +468,21 @@ public class ThanhToanHoaDon extends javax.swing.JPanel {
             document.add(thankYou);
             // Đóng tệp PDF
             document.close();
-          
-          
+            
+            DatSan dangKi = datSanService.getAll().get(row);
+            KhachHang khachHang = khachHangService.getOne(dangKi.getIdKhachHang());
+            HoaDon hoaDon = HoaDon.builder()
+                    .idKH(khachHang.getId())
+                    .tongTien(Double.parseDouble(tongTien))
+                    .ngayTao(ngayThanhToan)
+                    .tichDiem(100)
+                    .build();
+            boolean f = hoaDonService.add(hoaDon);
+           datSanService.update(null, dangKi.getId());
+            if (f) {
+                JOptionPane.showMessageDialog(this, "Thanh Toán Thành Công");
+            }
+
             if (Desktop.isDesktopSupported()) {
                 try {
                     Desktop.getDesktop().open(new File("H:\\java3\\hoadonchitiet.pdf"));

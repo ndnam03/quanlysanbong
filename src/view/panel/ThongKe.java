@@ -4,6 +4,14 @@
  */
 package view.panel;
 
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.List;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.category.DefaultCategoryDataset;
+import service.HoaDonService;
+
 /**
  *
  * @author ACER
@@ -13,8 +21,22 @@ public class ThongKe extends javax.swing.JPanel {
     /**
      * Creates new form ThongKe
      */
+  private static final int NUM_MONTHS = 12;
+    private static HoaDonService hoaDonService = new HoaDonService();
+
     public ThongKe() {
         initComponents();
+        List<Double> dataList = new ArrayList<>();
+        for (int i = 1; i <= NUM_MONTHS; i++) {
+            dataList.addAll(hoaDonService.thongKeTongTienThang(i));
+        }
+
+        DefaultCategoryDataset dataset = ThongKeTongTien.createDataset(dataList);
+        JFreeChart chart = ThongKeTongTien.createChart(dataset);
+        ChartPanel chartPanel = new ChartPanel(chart);
+
+        setLayout(new BorderLayout());
+        add(chartPanel, BorderLayout.CENTER);
     }
 
     /**
