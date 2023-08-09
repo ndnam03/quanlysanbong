@@ -45,7 +45,12 @@ public class ChamCongDAO extends DBContext implements MethodDAO<ChamCong> {
     public ChamCong getOne(int id) {
         ChamCong chamCong = null;
         try {
-            String sql = "select * from cham_cong where idNhanVien = ?";
+            String sql = "SELECT TOP (1) [id]\n"
+                    + "      ,[idNhanVien]\n"
+                    + "      ,[ngayLam]\n"
+                    + "      ,[gioBatDau]\n"
+                    + "      ,[gioKetThuc]\n"
+                    + "  FROM [quanlysanbong].[dbo].[cham_cong] where idNhanVien = ? order by id desc";
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, id);
             ResultSet rs = st.executeQuery();

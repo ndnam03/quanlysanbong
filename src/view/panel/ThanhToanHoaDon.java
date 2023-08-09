@@ -479,6 +479,7 @@ public class ThanhToanHoaDon extends javax.swing.JPanel {
                     .build();
             boolean f = hoaDonService.add(hoaDon);
            datSanService.update(null, dangKi.getId());
+           sanBongService.updateSanThanhToan(null, dangKi.getSanBongId());
             if (f) {
                 JOptionPane.showMessageDialog(this, "Thanh Toán Thành Công");
             }

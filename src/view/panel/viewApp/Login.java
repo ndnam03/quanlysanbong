@@ -188,12 +188,19 @@ public class Login extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Đăng Nhập Thành Công " + " xin chào " + UserSession.getCurrentUser().getName());
             ChamCong chamCong = chamCongService.getOne(user.getId());
             LocalDate date = LocalDate.now();
+            System.out.println(date);
+             String timeStart = "";
+            if(chamCong != null){
+                  timeStart = chamCong.getNgayLam().toString();
+            }
+        
+            
+            System.out.println(timeStart);
+            if (!user.getRole().equals("admin") && timeStart.isEmpty()) {
 
-            if (!user.getRole().equals("admin") && chamCong == null) {
-                
-                    ChamCongView chamCongView = new ChamCongView();
-                    chamCongView.setVisible(true);
-                    setVisible(false);
+                ChamCongView chamCongView = new ChamCongView();
+                chamCongView.setVisible(true);
+                setVisible(false);
 
             } else {
                 App app = new App();

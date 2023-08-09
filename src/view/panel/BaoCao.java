@@ -42,6 +42,7 @@ public class BaoCao extends javax.swing.JPanel {
     private DatSanService datSanService = new DatSanService();
     ChamCongService chamCongService = new ChamCongService();
     double tongTien = 0;
+    boolean check = true;
 
     public BaoCao() {
         initComponents();
@@ -49,23 +50,21 @@ public class BaoCao extends javax.swing.JPanel {
         tm = new DefaultTableModel(s, 0);
         jTable4.setModel(tm);
         getAllHoaDonByNgay();
-        loadBaoCao();
+
         jTextField10.setText(UserSession.getCurrentUser().getName());
     }
 
     private void loadBaoCao() {
+        double tongTiens = hoaDonService.getAllHoaDonByNgay().stream()
+                .mapToDouble(HoaDon::getTongTien)
+                .sum();
+
         if (jTextField9.getText().isEmpty()) {
-            double tongTiens = hoaDonService.getAllHoaDonByNgay().stream()
-                    .mapToDouble(HoaDon::getTongTien)
-                    .sum();
+            jTextField8.setText(hoaDonService.getAllHoaDonByNgay().size() + "");
 
-            if (jTextField9.getText().isEmpty()) {
-                jTextField8.setText(hoaDonService.getAllHoaDonByNgay().size() + "");
-
-                jTextField9.setText(String.valueOf(tongTien) + "VND");
-            } else {
-                jTextField9.setText(String.valueOf(tongTien) + "VND");
-            }
+            jTextField9.setText(String.valueOf(tongTiens) + "VND");
+        } else {
+            jTextField9.setText(String.valueOf(tongTiens) + "VND");
         }
 
     }
@@ -324,8 +323,10 @@ public class BaoCao extends javax.swing.JPanel {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
+        jTextField9.setText("");
         loadBaoCao();
         getAllHoaDonByNgay();
+
     }//GEN-LAST:event_jButton4ActionPerformed
 
 

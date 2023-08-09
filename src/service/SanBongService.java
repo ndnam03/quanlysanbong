@@ -46,4 +46,12 @@ public class SanBongService implements MethodService<SanBong> {
     public SanBong getOneByName(String name) {
         return new SanBongDAO().getOneByName(name);
     }
+
+    public boolean updateSan(SanBong object, int id) {
+        return new SanBongDAO().updateSan(object, id);
+    }
+
+    public boolean updateSanThanhToan(SanBong object, int id) {
+        return new SanBongDAO().updateSanThanhToan(object, id);
+    }
 }

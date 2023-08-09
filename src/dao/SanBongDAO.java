@@ -139,7 +139,7 @@ public class SanBongDAO extends DBContext implements MethodDAO<SanBong> {
      public List<SanBong> getAllByTrangThai() {
         List<SanBong> list = new ArrayList<>();
         try {
-            String sql = "select * from san where trangthai = 1";
+            String sql = "select * from san where trangthai = 1 and tingtrang = 0";
             PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
@@ -156,6 +156,43 @@ public class SanBongDAO extends DBContext implements MethodDAO<SanBong> {
             e.printStackTrace();
         }
         return list;
+    }
+     
+
+    public boolean updateSan(SanBong object, int id) {
+        String sql = "update san set tingtrang = 1 where id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+      
+            st.setInt(1, id);
+
+            int i = st.executeUpdate();
+
+            if (i > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public boolean updateSanThanhToan(SanBong object, int id) {
+        String sql = "update san set tingtrang = 0 where id = ?";
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+      
+            st.setInt(1, id);
+
+            int i = st.executeUpdate();
+
+            if (i > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

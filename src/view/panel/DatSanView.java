@@ -29,7 +29,7 @@ public class DatSanView extends javax.swing.JPanel {
 
     public DatSanView() {
         initComponents();
-        loadDataLoaiSan();
+        loadDataLoaiSan(sanBongService.getAllByTrangThai());
         jTextField2.setText(String.valueOf(UserSession.getCurrentUser().getId()));
         jTextField4.setText(String.valueOf(UserSession.getCurrentUser().getName()));
 
@@ -76,7 +76,6 @@ public class DatSanView extends javax.swing.JPanel {
             return "Họ Tên Khách Hàng Không Được Để Trống!!!";
         }
 
-
         String regex2 = "^[a-zA-Z\\s]+$";
 
         if (!fullName.matches(regex2)) {
@@ -118,11 +117,13 @@ public class DatSanView extends javax.swing.JPanel {
         return "";
     }
 
-    private void loadDataLoaiSan() {
-        List<SanBong> list = sanBongService.getAllByTrangThai();
+    private void loadDataLoaiSan(List<SanBong> list) {
+
         list.forEach(o -> {
+
             jComboBox1.addItem(o.getLoaiSan());
         });
+        jLabel19.setText("Sân còn trống là : " + list.size());
     }
 
     /**
@@ -171,6 +172,7 @@ public class DatSanView extends javax.swing.JPanel {
         jButton2 = new javax.swing.JButton();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
         jLabel18 = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
 
         jPanel1.setBackground(new java.awt.Color(0, 255, 133));
 
@@ -186,7 +188,7 @@ public class DatSanView extends javax.swing.JPanel {
             }
         });
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Danh sách sân bóng", " " }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Danh Sách Sân Bóng" }));
         jComboBox1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jComboBox1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -364,6 +366,11 @@ public class DatSanView extends javax.swing.JPanel {
 
         jButton2.setBackground(new java.awt.Color(217, 217, 217));
         jButton2.setText("Hủy");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -405,14 +412,16 @@ public class DatSanView extends javax.swing.JPanel {
                                 .addGap(34, 34, 34)
                                 .addComponent(jLabel1))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(42, 42, 42)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jTextField1)))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(62, 62, 62)
-                                .addComponent(jLabel2)))
+                                .addComponent(jLabel2))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(42, 42, 42)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel19)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(jLabel3)
+                                        .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jTextField1)))))
                         .addGap(67, 67, 67)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -453,7 +462,9 @@ public class DatSanView extends javax.swing.JPanel {
                         .addGroup(jPanel1Layout.createSequentialGroup()
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addGap(105, 105, 105)
+                                    .addGap(83, 83, 83)
+                                    .addComponent(jLabel19)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGap(31, 31, 31))
                                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -503,7 +514,7 @@ public class DatSanView extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 9, Short.MAX_VALUE))
+                .addGap(0, 10, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -523,11 +534,12 @@ public class DatSanView extends javax.swing.JPanel {
         int idKH = khachHangService.getOneByName(khachHang.getPhone()).getId();
         datSanService.add(readObject(idKH));
         JOptionPane.showMessageDialog(this, "Đặt Thành Công");
-
+        sanBongService.updateSan(null, Integer.parseInt(jTextField5.getText()));
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         // TODO add your handling code here:
+
         showChiTietSan(jComboBox1.getSelectedItem().toString());
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
@@ -540,6 +552,34 @@ public class DatSanView extends javax.swing.JPanel {
         // TODO add your handling code here:
 
     }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        jTextField5.setText("");
+        jTextField6.setText("");
+        jTextField7.setText("");
+        jTextField8.setText("");
+        jTextField9.setText("");
+        jTextField10.setText("");
+        jTextField11.setText("");
+        jTextField12.setText("");
+        jTextField1.setText("");
+        jDateChooser1.setDate(null);
+
+        try {
+            int i = 1;
+
+            sanBongService.getAllByTrangThai().forEach(o -> {
+                jComboBox1.removeItemAt(i);
+                jComboBox1.addItem(o.getLoaiSan());
+ 
+            });
+            jLabel19.setText("Sân còn trống là : " + sanBongService.getAllByTrangThai().size());
+        } catch (Exception e) {
+        }
+
+
+    }//GEN-LAST:event_jButton2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -557,6 +597,7 @@ public class DatSanView extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

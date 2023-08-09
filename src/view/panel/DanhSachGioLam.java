@@ -43,10 +43,13 @@ public class DanhSachGioLam extends javax.swing.JPanel {
             String name = accountService.getOne(o.getIdNhanVien()).getName();
             Time thoiGianBatDau = o.getGioBatDau();
             Time thoiGianKetThuc = o.getGioKetThuc();
-
+            long ketThucMillis = 1l;
             // Chuyển đổi thời gian về đơn vị giờ và phút
             long batDauMillis = thoiGianBatDau.getTime();
-            long ketThucMillis = thoiGianKetThuc.getTime();
+            if (thoiGianKetThuc != null) {
+                 ketThucMillis = thoiGianKetThuc.getTime();
+            }
+
             long thoiGianLamViecMillis = ketThucMillis - batDauMillis;
 
             // Chuyển đổi thời gian làm việc từ millis sang phút
@@ -261,7 +264,7 @@ public class DanhSachGioLam extends javax.swing.JPanel {
         // TODO add your handling code here:loa
         if (!jTextField4.getText().isEmpty()) {
             loadData(chamCongService.getAllChamCongByPhone(jTextField4.getText()));
-        }else{
+        } else {
             JOptionPane.showMessageDialog(this, "Không có nhân viên nào!!!");
             loadData(chamCongService.getAll());
         }
